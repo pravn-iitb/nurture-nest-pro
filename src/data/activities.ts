@@ -258,3 +258,6 @@ export const getActivitiesByCategory = (category: Activity['category'], ageInMon
     activity.category === category
   );
 };
+
+// Export alias for backward compatibility
+export const activities = developmentalActivities;

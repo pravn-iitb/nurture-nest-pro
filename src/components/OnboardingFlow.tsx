@@ -1,54 +1,42 @@
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { PhoneLogin } from './onboarding/PhoneLogin';
-import { OTPVerification } from './onboarding/OTPVerification';
-import { ProfileSetup } from './onboarding/ProfileSetup';
+import { useState } from "react";
+import { Welcome } from "./onboarding/Welcome";
+import { ParentType } from "./onboarding/ParentType";
+import { ChildStage } from "./onboarding/ChildStage";
+import { ChildName } from "./onboarding/ChildName";
+import { WelcomeComplete } from "./onboarding/WelcomeComplete";
+import { useAuth } from "@/contexts/AuthContext";
 
-type OnboardingStep = 'phone' | 'otp' | 'profile';
+type OnboardingStep = 'welcome' | 'parent-type' | 'child-stage' | 'child-name' | 'complete';
 
 export function OnboardingFlow() {
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('phone');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const { login, updateUser, completeOnboarding } = useAuth();
+  const [step, setStep] = useState<OnboardingStep>('welcome');
+  const [parentType, setParentType] = useState<'mom' | 'dad' | 'other'>();
+  const [childStage, setChildStage] = useState<'expecting' | 'newborn' | 'infant' | 'toddler'>();
+  const [childName, setChildName] = useState<string>();
+  const { login } = useAuth();
 
-  const handlePhoneSubmit = (phone: string) => {
-    setPhoneNumber(phone);
-    setCurrentStep('otp');
-  };
-
-  const handleOTPVerify = async (otp: string) => {
-    await login(phoneNumber, otp);
-    setCurrentStep('profile');
-  };
-
-  const handleProfileComplete = (parentName: string, child: any) => {
-    updateUser({ 
-      name: parentName,
-      child: child
+  const handleComplete = () => {
+    login({
+      id: '1',
+      parentType,
+      childStage,
+      childName,
+      onboardingCompleted: true
     });
-    completeOnboarding();
   };
 
-  const handleBack = () => {
-    if (currentStep === 'otp') {
-      setCurrentStep('phone');
-    }
-  };
-
-  switch (currentStep) {
-    case 'phone':
-      return <PhoneLogin onPhoneSubmit={handlePhoneSubmit} />;
-    case 'otp':
-      return (
-        <OTPVerification 
-          phone={phoneNumber} 
-          onVerify={handleOTPVerify}
-          onBack={handleBack}
-        />
-      );
-    case 'profile':
-      return <ProfileSetup onComplete={handleProfileComplete} />;
+  switch (step) {
+    case 'welcome':
+      return <Welcome onNext={() => setStep('parent-type')} />;
+    case 'parent-type':
+      return <ParentType onSelect={(type) => { setParentType(type); setStep('child-stage'); }} />;
+    case 'child-stage':
+      return <ChildStage onSelect={(stage) => { setChildStage(stage); setStep('child-name'); }} onBack={() => setStep('parent-type')} />;
+    case 'child-name':
+      return <ChildName parentType={parentType!} stage={childStage!} onComplete={(name) => { setChildName(name); setStep('complete'); }} onBack={() => setStep('child-stage')} />;
+    case 'complete':
+      return <WelcomeComplete parentType={parentType!} childName={childName} onComplete={handleComplete} />;
     default:
-      return <PhoneLogin onPhoneSubmit={handlePhoneSubmit} />;
+      return <Welcome onNext={() => setStep('parent-type')} />;
   }
 }

@@ -9,7 +9,7 @@ interface Activity {
   duration: string;
   ageGroup: string;
   participants: number;
-  category: "physical" | "cognitive" | "social" | "creative";
+  category: "physical" | "cognitive" | "social" | "creative" | "sensory";
   difficulty: "easy" | "medium" | "hard";
 }
 

@@ -49,6 +49,10 @@ export default {
 					light: 'hsl(var(--accent-light))',
 					dark: 'hsl(var(--accent-dark))',
 				},
+				warm: {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))',
+				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--primary-foreground))',
@@ -86,7 +90,9 @@ export default {
 				'gradient-secondary': 'var(--gradient-secondary)',
 				'gradient-accent': 'var(--gradient-accent)',
 				'gradient-warm': 'var(--gradient-warm)',
-				'gradient-cool': 'var(--gradient-cool)'
+				'gradient-cool': 'var(--gradient-cool)',
+				'gradient-floating': 'var(--gradient-floating)',
+				'gradient-moments': 'var(--gradient-moments)'
 			},
 			boxShadow: {
 				'soft': 'var(--shadow-xs)',
@@ -120,5 +126,14 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		function({ addUtilities }: any) {
+			addUtilities({
+				'.hover-scale': {
+					'@apply transition-transform duration-200 hover:scale-105': {}
+				}
+			})
+		}
+	]
 } satisfies Config;

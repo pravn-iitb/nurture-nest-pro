@@ -1,37 +1,35 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
-import { ChildProfile } from "@/components/ChildProfile";
+import { QuickActions } from "@/components/QuickActions";
+import { ChildInfoCard } from "@/components/ChildInfoCard";
+import { MomentsCarousel } from "@/components/MomentsCarousel";
+import { SmartGuidance } from "@/components/SmartGuidance";
+import { ChildDetailsForm } from "@/components/ChildDetailsForm";
 import { MilestoneCard } from "@/components/MilestoneCard";
 import { ActivityCard } from "@/components/ActivityCard";
-import { ParentingTip } from "@/components/ParentingTip";
-import { DailyCheckIn } from "@/components/DailyCheckIn";
-import { ExpertContent } from "@/components/ExpertContent";
-import { MemoryMoments } from "@/components/MemoryMoments";
 import { SocialFeatures } from "@/components/SocialFeatures";
+import { ExpertContent } from "@/components/ExpertContent";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Plus, Star, TrendingUp, Heart, Users } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Heart, Sparkles, TrendingUp, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { officialMilestones } from "@/data/milestones";
 import { developmentalActivities } from "@/data/activities";
-import heroImage from "@/assets/hero-family.jpg";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const { user, logout } = useAuth();
+  const [showChildForm, setShowChildForm] = useState(false);
+  const { user, updateUser } = useAuth();
   
-  const child = user?.child || {
-    name: "Your Child",
-    age: "0 months",
-    birthday: "Unknown",
-    height: "Unknown",
-    weight: "Unknown"
-  };
+  const child = user?.child || {};
 
-  // Get age-appropriate milestones and activities
-  const childAgeInMonths = user?.child?.birthDate 
-    ? Math.floor((new Date().getTime() - new Date(user.child.birthDate).getTime()) / (1000 * 60 * 60 * 24 * 30.44))
-    : 24;
+  // Calculate age more accurately in days
+  const childAgeInDays = user?.child?.birthDate 
+    ? Math.floor((new Date().getTime() - new Date(user.child.birthDate).getTime()) / (1000 * 60 * 60 * 24))
+    : 30; // Default to 30 days for demo
+
+  const childAgeInMonths = Math.floor(childAgeInDays / 30.44);
   
   const ageAppropriateM = officialMilestones.filter(m => 
     childAgeInMonths >= m.ageRangeMonths[0] && childAgeInMonths <= m.ageRangeMonths[1] + 6
@@ -80,102 +78,114 @@ export default function Dashboard() {
     }
   ];
 
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case "capture":
+        toast.success("Opening camera to capture moment");
+        break;
+      case "milestone":
+        setActiveTab("milestones");
+        break;
+      case "growth":
+        setShowChildForm(true);
+        break;
+      case "schedule":
+        toast.info("Scheduling feature coming soon");
+        break;
+    }
+  };
+
+  const handleSaveChildDetails = (details: any) => {
+    updateUser({ 
+      child: { 
+        ...user?.child, 
+        ...details 
+      } 
+    });
+    setShowChildForm(false);
+    toast.success("Child details updated!");
+  };
+
+  const handleGuidanceAction = (id: string, action: string) => {
+    if (action === 'start') {
+      toast.success("Starting activity guidance");
+    } else {
+      toast.info("Opening detailed guidance");
+    }
+  };
+
   const handleMilestoneToggle = (id: string) => {
-    console.log("Toggle milestone:", id);
+    toast.success("Milestone updated!");
   };
 
   const handleGetAdvice = (id: string) => {
-    console.log("Get advice for milestone:", id);
+    toast.info("Getting expert advice for this milestone");
   };
 
   const handleStartActivity = (id: string) => {
-    console.log("Start activity:", id);
-  };
-
-  const handleTipAction = (action: string, id: string) => {
-    console.log(`${action} tip:`, id);
+    toast.success("Activity started!");
   };
 
   const renderDashboard = () => (
     <div className="space-y-6">
-      {/* Daily Check-in */}
-      <DailyCheckIn 
-        onComplete={(data) => console.log("Check-in data:", data)}
-      />
-
-      {/* Hero Section */}
-      <div className="relative h-48 rounded-2xl overflow-hidden">
-        <img 
-          src={heroImage} 
-          alt="Family" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex items-center p-6">
-          <div className="text-white">
-            <h1 className="text-2xl font-bold mb-2">Good morning! ☀️</h1>
-            <p className="text-white/90">Let's track {child.name}'s wonderful journey today</p>
-          </div>
-        </div>
+      {/* Greeting */}
+      <div className="text-center py-2">
+        <h1 className="text-2xl font-bold mb-1">
+          Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}! 
+          <Sparkles className="inline h-5 w-5 ml-2 text-primary" />
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          {child.name ? `Let's nurture ${child.name}'s growth today` : "Ready to start your parenting journey?"}
+        </p>
       </div>
 
-      <ChildProfile 
+      {/* Child Info */}
+      <ChildInfoCard
         child={child}
-        onEditProfile={() => console.log("Edit profile")}
-        onAddFamily={() => setActiveTab("family")}
+        ageInDays={childAgeInDays}
+        onEdit={() => setShowChildForm(true)}
       />
 
-      {/* Memory Moments */}
-      <MemoryMoments 
+      {/* Quick Actions */}
+      <QuickActions onAction={handleQuickAction} />
+
+      {/* Moments Carousel */}
+      <MomentsCarousel
         moments={[]}
-        onCaptureMoment={() => console.log("Capture moment")}
-        onLoveMoment={(id) => console.log("Love moment:", id)}
-        onShareMoment={(id) => console.log("Share moment:", id)}
+        onCapture={() => handleQuickAction("capture")}
+        onLove={(id) => toast.success("Moment loved!")}
+        onShare={(id) => toast.success("Moment shared!")}
       />
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="p-4 text-center bg-gradient-primary text-primary-foreground">
-          <TrendingUp className="h-8 w-8 mx-auto mb-2" />
-          <div className="text-2xl font-bold">{ageAppropriateM.filter(m => m.completed).length}/{ageAppropriateM.length}</div>
-          <div className="text-sm opacity-90">Milestones</div>
+      <div className="grid grid-cols-3 gap-3">
+        <Card className="text-center bg-gradient-primary text-primary-foreground border-0">
+          <CardContent className="p-3">
+            <TrendingUp className="h-5 w-5 mx-auto mb-1" />
+            <div className="text-lg font-bold">{ageAppropriateM.filter(m => m.completed).length}</div>
+            <div className="text-xs opacity-90">Milestones</div>
+          </CardContent>
         </Card>
-        <Card className="p-4 text-center bg-gradient-secondary text-secondary-foreground">
-          <Star className="h-8 w-8 mx-auto mb-2" />
-          <div className="text-2xl font-bold">0</div>
-          <div className="text-sm opacity-90">Activities Done</div>
+        <Card className="text-center bg-gradient-accent text-accent-foreground border-0">
+          <CardContent className="p-3">
+            <Heart className="h-5 w-5 mx-auto mb-1" />
+            <div className="text-lg font-bold">0</div>
+            <div className="text-xs opacity-90">Moments</div>
+          </CardContent>
+        </Card>
+        <Card className="text-center bg-gradient-warm text-warm-foreground border-0">
+          <CardContent className="p-3">
+            <div className="text-lg font-bold">{Math.floor(childAgeInDays / 7)}</div>
+            <div className="text-xs opacity-90">Weeks</div>
+          </CardContent>
         </Card>
       </div>
 
-      {/* Recent Milestones */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Recent Milestones</h2>
-          <Button variant="ghost" size="sm" onClick={() => setActiveTab("milestones")}>
-            View All
-          </Button>
-        </div>
-        <div className="space-y-3">
-          {ageAppropriateM.slice(0, 2).map((milestone) => (
-            <MilestoneCard
-              key={milestone.id}
-              milestone={milestone}
-              onToggle={handleMilestoneToggle}
-              onGetAdvice={handleGetAdvice}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Today's Activity */}
-      <div>
-        <h2 className="text-xl font-bold mb-4">Suggested Activity</h2>
-        {ageAppropriateA[0] && (
-          <ActivityCard
-            activity={ageAppropriateA[0]}
-            onStartActivity={handleStartActivity}
-          />
-        )}
-      </div>
+      {/* Smart Guidance */}
+      <SmartGuidance
+        ageInDays={childAgeInDays}
+        onActionTaken={handleGuidanceAction}
+      />
     </div>
   );
 
@@ -265,6 +275,14 @@ export default function Dashboard() {
         {renderContent()}
       </div>
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      {showChildForm && (
+        <ChildDetailsForm
+          child={child}
+          onSave={handleSaveChildDetails}
+          onCancel={() => setShowChildForm(false)}
+        />
+      )}
     </div>
   );
 }

@@ -47,6 +47,10 @@
     --gradient-warm: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
     --gradient-cool: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
 
+    /* Component-specific gradients */
+    --gradient-floating: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+    --gradient-moments: linear-gradient(180deg, transparent, hsl(var(--background) / 0.8));
+
     /* Soft shadows */
     --shadow-xs: 0 1px 3px hsl(0 0% 0% / 0.05);
     --shadow-sm: 0 4px 6px hsl(0 0% 0% / 0.07);

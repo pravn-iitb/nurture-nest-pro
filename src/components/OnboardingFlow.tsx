@@ -13,16 +13,17 @@ export function OnboardingFlow() {
   const [parentType, setParentType] = useState<'mom' | 'dad' | 'other'>();
   const [childStage, setChildStage] = useState<'expecting' | 'newborn' | 'infant' | 'toddler'>();
   const [childName, setChildName] = useState<string>();
-  const { login } = useAuth();
+  const { updateUser, completeOnboarding } = useAuth();
 
   const handleComplete = () => {
-    login({
-      id: '1',
-      parentType,
-      childStage,
-      childName,
-      onboardingCompleted: true
+    updateUser({
+      child: {
+        name: childName,
+        stage: childStage,
+        parentType
+      }
     });
+    completeOnboarding();
   };
 
   switch (step) {

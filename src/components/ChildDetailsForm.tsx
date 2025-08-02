@@ -1,169 +1,165 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Info, TrendingUp } from "lucide-react";
-import { getAgeMeasurements, calculatePercentile, formatMeasurement } from "@/utils/measurements";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Baby, Calendar, Ruler, Weight, X } from "lucide-react";
+
+interface ChildDetails {
+  name: string;
+  birthDate: string;
+  stage: string;
+  weight?: string;
+  height?: string;
+  headCircumference?: string;
+}
 
 interface ChildDetailsFormProps {
-  child: any;
-  onSave: (details: any) => void;
+  child?: ChildDetails;
+  onSave: (details: ChildDetails) => void;
   onCancel: () => void;
 }
 
 export function ChildDetailsForm({ child, onSave, onCancel }: ChildDetailsFormProps) {
-  const [name, setName] = useState(child.name || "");
-  const [birthDate, setBirthDate] = useState(child.birthDate || "");
-  const [measurements, setMeasurements] = useState({
-    weight: child.weight || "",
-    height: child.height || "",
-    headCircumference: child.headCircumference || "",
-    temperature: child.temperature || ""
+  const [details, setDetails] = useState<ChildDetails>({
+    name: child?.name || "",
+    birthDate: child?.birthDate || "",
+    stage: child?.stage || "newborn",
+    weight: child?.weight || "",
+    height: child?.height || "",
+    headCircumference: child?.headCircumference || ""
   });
 
-  // Calculate age for context
-  const ageInMonths = birthDate 
-    ? Math.floor((new Date().getTime() - new Date(birthDate).getTime()) / (1000 * 60 * 60 * 24 * 30.44))
-    : 0;
-  
-  const ageMeasurements = getAgeMeasurements(ageInMonths);
-
-  const handleMeasurementChange = (key: string, value: string) => {
-    setMeasurements(prev => ({ ...prev, [key]: value }));
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(details);
   };
 
-  const handleSave = () => {
-    const processedMeasurements: any = {};
-    Object.entries(measurements).forEach(([key, value]) => {
-      if (value && typeof value === 'string') {
-        processedMeasurements[key] = parseFloat(value) || 0;
-      }
-    });
-
-    onSave({
-      name,
-      birthDate,
-      ...processedMeasurements,
-      lastMeasured: new Date().toISOString()
-    });
+  const getAgeInDays = () => {
+    if (!details.birthDate) return 0;
+    const birth = new Date(details.birthDate);
+    const now = new Date();
+    return Math.floor((now.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24));
   };
 
-  const renderMeasurementField = (key: string, config: any) => {
-    if (!config) return null;
-    
-    const value = measurements[key as keyof typeof measurements];
-    const numericValue = parseFloat(value as string) || 0;
-    const percentile = numericValue > 0 ? calculatePercentile(numericValue, ageInMonths, key as any) : null;
-
-    return (
-      <div key={key} className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Label htmlFor={key} className="text-sm font-medium">
-            {config.label}
-          </Label>
-          {config.required && (
-            <Badge variant="outline" className="text-xs bg-primary/10 text-primary">
-              Required
-            </Badge>
-          )}
-        </div>
-        
-        <div className="relative">
-          <Input
-            id={key}
-            type="number"
-            step="0.1"
-            value={value}
-            onChange={(e) => handleMeasurementChange(key, e.target.value)}
-            placeholder={config.placeholder}
-            className="pr-12"
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-            {config.unit}
-          </span>
-        </div>
-        
-        {percentile && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <TrendingUp className="h-3 w-3" />
-            <span>~{Math.round(percentile)}th percentile</span>
-          </div>
-        )}
-      </div>
-    );
-  };
+  const ageInDays = getAgeInDays();
 
   return (
-    <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Update Child Details</DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-lg">Child Details</CardTitle>
+          <Button variant="ghost" size="sm" onClick={onCancel}>
+            <X className="h-4 w-4" />
+          </Button>
+        </CardHeader>
         
-        <div className="space-y-6">
-          {/* Basic Info */}
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Basic Info */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Child's Name</Label>
               <Input
                 id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter child's name"
+                value={details.name}
+                onChange={(e) => setDetails({ ...details, name: e.target.value })}
+                placeholder="Enter name"
+                required
               />
             </div>
-            
-            <div>
+
+            <div className="space-y-2">
               <Label htmlFor="birthDate">Birth Date</Label>
               <Input
                 id="birthDate"
                 type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
+                value={details.birthDate}
+                onChange={(e) => setDetails({ ...details, birthDate: e.target.value })}
+                required
               />
-              {ageInMonths > 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Age: {Math.floor(ageInMonths / 12)} years {ageInMonths % 12} months
+              {details.birthDate && (
+                <p className="text-xs text-muted-foreground">
+                  {ageInDays} days old
                 </p>
               )}
             </div>
-          </div>
 
-          {/* Age-Appropriate Measurements */}
-          {ageInMonths > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium">Measurements</h3>
-                <Info className="h-4 w-4 text-muted-foreground" />
-              </div>
-              
-              <Card className="p-3 bg-muted/50">
-                <p className="text-xs text-muted-foreground">
-                  Tracking {Object.values(ageMeasurements).filter(m => m.required).length} key measurements for this age group
-                </p>
-              </Card>
-
-              <div className="grid gap-4">
-                {Object.entries(ageMeasurements).map(([key, config]) => 
-                  renderMeasurementField(key, config)
-                )}
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="stage">Development Stage</Label>
+              <Select value={details.stage} onValueChange={(value) => setDetails({ ...details, stage: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="expecting">Expecting</SelectItem>
+                  <SelectItem value="newborn">Newborn (0-2 months)</SelectItem>
+                  <SelectItem value="infant">Infant (2-12 months)</SelectItem>
+                  <SelectItem value="toddler">Toddler (1-3 years)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
-          
-          <div className="flex gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={onCancel} className="flex-1">
-              Cancel
-            </Button>
-            <Button onClick={handleSave} className="flex-1">
-              Save Changes
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+
+            {/* Age-specific measurements */}
+            {details.birthDate && (
+              <>
+                <div className="pt-4 border-t">
+                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                    <Ruler className="h-4 w-4" />
+                    Measurements
+                  </h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="weight">Weight</Label>
+                      <Input
+                        id="weight"
+                        value={details.weight}
+                        onChange={(e) => setDetails({ ...details, weight: e.target.value })}
+                        placeholder={ageInDays < 365 ? "2.5 kg" : "12 kg"}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="height">Height</Label>
+                      <Input
+                        id="height"
+                        value={details.height}
+                        onChange={(e) => setDetails({ ...details, height: e.target.value })}
+                        placeholder={ageInDays < 365 ? "50 cm" : "75 cm"}
+                      />
+                    </div>
+                  </div>
+
+                  {ageInDays < 365 && (
+                    <div className="space-y-2 mt-3">
+                      <Label htmlFor="headCircumference">Head Circumference</Label>
+                      <Input
+                        id="headCircumference"
+                        value={details.headCircumference}
+                        onChange={(e) => setDetails({ ...details, headCircumference: e.target.value })}
+                        placeholder="35 cm"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Important for babies under 1 year
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+                Cancel
+              </Button>
+              <Button type="submit" className="flex-1">
+                Save Details
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -5,15 +5,13 @@ import { ChildInfoCard } from "@/components/ChildInfoCard";
 import { MomentsCarousel } from "@/components/MomentsCarousel";
 import { SmartGuidance } from "@/components/SmartGuidance";
 import { ChildDetailsForm } from "@/components/ChildDetailsForm";
-import { MilestoneTracker } from "@/components/MilestoneTracker";
-import { DailyActivities } from "@/components/DailyActivities";
-import { MedicalReminders } from "@/components/MedicalReminders";
+import { MilestoneCard } from "@/components/MilestoneCard";
 import { ActivityCard } from "@/components/ActivityCard";
 import { SocialFeatures } from "@/components/SocialFeatures";
 import { ExpertContent } from "@/components/ExpertContent";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Sparkles, TrendingUp, Plus, Calendar } from "lucide-react";
+import { Heart, Sparkles, TrendingUp, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { officialMilestones } from "@/data/milestones";
 import { developmentalActivities } from "@/data/activities";
@@ -22,8 +20,6 @@ import { toast } from "sonner";
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showChildForm, setShowChildForm] = useState(false);
-  const [completedMilestones, setCompletedMilestones] = useState<string[]>([]);
-  const [completedMedicalEvents, setCompletedMedicalEvents] = useState<string[]>([]);
   const { user, updateUser } = useAuth();
   
   const child = user?.child || {};
@@ -119,11 +115,6 @@ export default function Dashboard() {
   };
 
   const handleMilestoneToggle = (id: string) => {
-    setCompletedMilestones(prev => 
-      prev.includes(id) 
-        ? prev.filter(m => m !== id)
-        : [...prev, id]
-    );
     toast.success("Milestone updated!");
   };
 
@@ -132,24 +123,7 @@ export default function Dashboard() {
   };
 
   const handleStartActivity = (id: string) => {
-    toast.success("Activity started! Timer and guidance activated.");
-  };
-
-  const handleMedicalComplete = (id: string) => {
-    setCompletedMedicalEvents(prev => [...prev, id]);
-    toast.success("Medical appointment marked complete!");
-  };
-
-  const handleScheduleMedical = (id: string) => {
-    toast.info("Opening calendar to schedule appointment...");
-  };
-
-  const handleActivityDetails = (id: string) => {
-    if (id === 'all') {
-      setActiveTab('activities');
-    } else {
-      toast.info("Opening detailed activity instructions...");
-    }
+    toast.success("Activity started!");
   };
 
   const renderDashboard = () => (
@@ -207,20 +181,10 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Daily Activities */}
-      <DailyActivities
-        ageInMonths={childAgeInMonths}
-        onStartActivity={handleStartActivity}
-        onViewDetails={handleActivityDetails}
-      />
-
-      {/* Medical Reminders */}
-      <MedicalReminders
-        ageInMonths={childAgeInMonths}
-        completedEvents={completedMedicalEvents}
-        onMarkComplete={handleMedicalComplete}
-        onSchedule={handleScheduleMedical}
-        onAddCustom={() => toast.info("Custom reminder feature coming soon!")}
+      {/* Smart Guidance */}
+      <SmartGuidance
+        ageInDays={childAgeInDays}
+        onActionTaken={handleGuidanceAction}
       />
     </div>
   );
@@ -229,17 +193,21 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div className="text-center py-4">
         <h1 className="text-2xl font-bold mb-2">Growth Milestones</h1>
-        <p className="text-muted-foreground">Track {child.name || "your child"}'s development journey</p>
+        <p className="text-muted-foreground">Track Emma's development journey</p>
       </div>
       
-      <MilestoneTracker
-        ageInMonths={childAgeInMonths}
-        completedMilestones={completedMilestones}
-        onToggleMilestone={handleMilestoneToggle}
-        onGetHelp={handleGetAdvice}
-      />
+      <div className="space-y-4">
+        {ageAppropriateM.map((milestone) => (
+          <MilestoneCard
+            key={milestone.id}
+            milestone={milestone}
+            onToggle={handleMilestoneToggle}
+            onGetAdvice={handleGetAdvice}
+          />
+        ))}
+      </div>
       
-      <Button variant="outline" className="w-full">
+      <Button variant="floating" className="w-full">
         <Plus className="h-4 w-4 mr-2" />
         Add Custom Milestone
       </Button>
@@ -263,14 +231,18 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div className="text-center py-4">
         <h1 className="text-2xl font-bold mb-2">Play Activities</h1>
-        <p className="text-muted-foreground">Fun activities for {child.name || "your child"}'s development</p>
+        <p className="text-muted-foreground">Fun activities for Emma's development</p>
       </div>
       
-      <DailyActivities
-        ageInMonths={childAgeInMonths}
-        onStartActivity={handleStartActivity}
-        onViewDetails={handleActivityDetails}
-      />
+      <div className="space-y-4">
+        {ageAppropriateA.map((activity) => (
+          <ActivityCard
+            key={activity.id}
+            activity={activity}
+            onStartActivity={handleStartActivity}
+          />
+        ))}
+      </div>
     </div>
   );
 
@@ -303,8 +275,6 @@ export default function Dashboard() {
         {renderContent()}
       </div>
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
-      
-      {/* Add Medical tab to navigation if needed */}
       
       {showChildForm && (
         <ChildDetailsForm

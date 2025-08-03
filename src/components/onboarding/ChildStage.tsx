@@ -5,6 +5,7 @@ import { Baby, Heart, Smile, Zap } from "lucide-react";
 interface ChildStageProps {
   onSelect: (stage: 'expecting' | 'newborn' | 'infant' | 'toddler') => void;
   onBack: () => void;
+  onSkip?: () => void;
 }
 
 const stages = [
@@ -42,7 +43,7 @@ const stages = [
   },
 ];
 
-export function ChildStage({ onSelect, onBack }: ChildStageProps) {
+export function ChildStage({ onSelect, onBack, onSkip }: ChildStageProps) {
   return (
     <div className="min-h-screen bg-background flex flex-col p-6">
       <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
@@ -87,13 +88,25 @@ export function ChildStage({ onSelect, onBack }: ChildStageProps) {
           })}
         </div>
 
-        <Button 
-          variant="ghost" 
-          onClick={onBack}
-          className="mt-8 mx-auto text-muted-foreground"
-        >
-          Go Back
-        </Button>
+        <div className="flex flex-col space-y-3 mt-8">
+          <Button 
+            variant="ghost" 
+            onClick={onBack}
+            className="mx-auto text-muted-foreground"
+          >
+            Go Back
+          </Button>
+          
+          {onSkip && (
+            <Button 
+              variant="ghost" 
+              onClick={onSkip}
+              className="mx-auto text-muted-foreground"
+            >
+              Skip Setup
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

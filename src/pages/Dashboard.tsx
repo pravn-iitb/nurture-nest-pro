@@ -5,7 +5,7 @@ import { ChildInfoCard } from "@/components/ChildInfoCard";
 import { MomentsCarousel } from "@/components/MomentsCarousel";
 import { SmartGuidance } from "@/components/SmartGuidance";
 import { ChildDetailsForm } from "@/components/ChildDetailsForm";
-import { MilestoneTracker } from "@/components/MilestoneTracker";
+import { EnhancedMilestoneTracker } from "@/components/EnhancedMilestoneTracker";
 import { DailyActivities } from "@/components/DailyActivities";
 import { MedicalReminders } from "@/components/MedicalReminders";
 import { ActivityCard } from "@/components/ActivityCard";
@@ -232,7 +232,7 @@ export default function Dashboard() {
         <p className="text-muted-foreground">Track {child.name || "your child"}'s development journey</p>
       </div>
       
-      <MilestoneTracker
+      <EnhancedMilestoneTracker
         ageInMonths={childAgeInMonths}
         completedMilestones={completedMilestones}
         onToggleMilestone={handleMilestoneToggle}

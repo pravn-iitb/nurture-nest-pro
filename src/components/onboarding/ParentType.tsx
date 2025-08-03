@@ -4,6 +4,8 @@ import { User, Users, Heart } from "lucide-react";
 
 interface ParentTypeProps {
   onSelect: (type: 'mom' | 'dad' | 'other') => void;
+  onSkip?: () => void;
+  onBack?: () => void;
 }
 
 const parentTypes = [
@@ -12,7 +14,7 @@ const parentTypes = [
   { id: 'other' as const, label: 'Other', icon: Users, gradient: 'bg-gradient-secondary' },
 ];
 
-export function ParentType({ onSelect }: ParentTypeProps) {
+export function ParentType({ onSelect, onSkip, onBack }: ParentTypeProps) {
   return (
     <div className="min-h-screen bg-background flex flex-col p-6">
       <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
@@ -45,6 +47,28 @@ export function ParentType({ onSelect }: ParentTypeProps) {
               </Card>
             );
           })}
+        </div>
+
+        <div className="flex flex-col space-y-3 mt-8">
+          {onBack && (
+            <Button 
+              variant="ghost" 
+              onClick={onBack}
+              className="mx-auto text-muted-foreground"
+            >
+              Go Back
+            </Button>
+          )}
+          
+          {onSkip && (
+            <Button 
+              variant="ghost" 
+              onClick={onSkip}
+              className="mx-auto text-muted-foreground"
+            >
+              Skip Setup
+            </Button>
+          )}
         </div>
       </div>
     </div>

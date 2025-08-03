@@ -6,21 +6,21 @@
 
 @layer base {
   :root {
-    /* Minimalist color palette - mint green, soft lavender, peach */
-    --primary: 165 60% 51%;     /* Mint green */
+    /* Minimalist color palette - soft mint, gentle blue, warm peach */
+    --primary: 160 45% 58%;     /* Soft mint */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 165 60% 85%;
-    --primary-dark: 165 60% 35%;
+    --primary-light: 160 45% 88%;
+    --primary-dark: 160 45% 35%;
 
-    --secondary: 280 65% 85%;   /* Soft lavender */
-    --secondary-foreground: 280 20% 25%;
-    --secondary-light: 280 65% 95%;
-    --secondary-dark: 280 65% 70%;
+    --secondary: 210 40% 65%;   /* Gentle blue */
+    --secondary-foreground: 210 15% 25%;
+    --secondary-light: 210 40% 90%;
+    --secondary-dark: 210 40% 45%;
 
-    --accent: 25 85% 80%;       /* Soft peach */
-    --accent-foreground: 25 20% 25%;
-    --accent-light: 25 85% 90%;
-    --accent-dark: 25 85% 65%;
+    --accent: 20 60% 75%;       /* Warm peach */
+    --accent-foreground: 20 15% 25%;
+    --accent-light: 20 60% 90%;
+    --accent-dark: 20 60% 55%;
 
     /* Clean neutral system */
     --background: 0 0% 100%;
@@ -40,16 +40,16 @@
     --warning: 35 90% 55%;
     --destructive: 0 75% 60%;
 
-    /* Gentle gradients */
+    /* Minimal gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
     --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-light)));
     --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-light)));
-    --gradient-warm: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
-    --gradient-cool: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --gradient-warm: linear-gradient(135deg, hsl(var(--accent) / 0.6), hsl(var(--primary) / 0.6));
+    --gradient-cool: linear-gradient(135deg, hsl(var(--primary) / 0.6), hsl(var(--secondary) / 0.6));
 
     /* Component-specific gradients */
-    --gradient-floating: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
-    --gradient-moments: linear-gradient(180deg, transparent, hsl(var(--background) / 0.8));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted) / 0.3));
+    --gradient-moments: linear-gradient(180deg, transparent, hsl(var(--background) / 0.9));
 
     /* Soft shadows */
     --shadow-xs: 0 1px 3px hsl(0 0% 0% / 0.05);

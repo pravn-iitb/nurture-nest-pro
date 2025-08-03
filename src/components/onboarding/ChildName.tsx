@@ -10,9 +10,10 @@ interface ChildNameProps {
   stage: 'expecting' | 'newborn' | 'infant' | 'toddler';
   onComplete: (childName?: string) => void;
   onBack: () => void;
+  onSkip?: () => void;
 }
 
-export function ChildName({ parentType, stage, onComplete, onBack }: ChildNameProps) {
+export function ChildName({ parentType, stage, onComplete, onBack, onSkip }: ChildNameProps) {
   const [childName, setChildName] = useState("");
 
   const isExpecting = stage === 'expecting';
@@ -86,13 +87,25 @@ export function ChildName({ parentType, stage, onComplete, onBack }: ChildNamePr
           </div>
         </Card>
 
-        <Button 
-          variant="ghost" 
-          onClick={onBack}
-          className="mt-8 mx-auto text-muted-foreground"
-        >
-          Go Back
-        </Button>
+        <div className="flex flex-col space-y-3 mt-8">
+          <Button 
+            variant="ghost" 
+            onClick={onBack}
+            className="mx-auto text-muted-foreground"
+          >
+            Go Back
+          </Button>
+          
+          {onSkip && (
+            <Button 
+              variant="ghost" 
+              onClick={onSkip}
+              className="mx-auto text-muted-foreground"
+            >
+              Skip Setup
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

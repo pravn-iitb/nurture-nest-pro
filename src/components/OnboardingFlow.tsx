@@ -17,6 +17,7 @@ export function OnboardingFlow() {
   const { updateUser, completeOnboarding } = useAuth();
 
   const handleComplete = () => {
+    console.log('handleComplete called', { parentType, childStage, childName });
     // Calculate initial birth date based on stage
     const birthDate = childStage === 'expecting' 
       ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Due in 30 days

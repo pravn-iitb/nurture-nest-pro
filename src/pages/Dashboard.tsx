@@ -8,6 +8,10 @@ import { ChildDetailsForm } from "@/components/ChildDetailsForm";
 import { EnhancedMilestoneTracker } from "@/components/EnhancedMilestoneTracker";
 import { DailyActivities } from "@/components/DailyActivities";
 import { MedicalReminders } from "@/components/MedicalReminders";
+import { SmartActivities } from "@/components/SmartActivities";
+import { AgeAppropriateFacts } from "@/components/AgeAppropriateFacts";
+import { TeachingMoments } from "@/components/TeachingMoments";
+import { MedicalSlider } from "@/components/BottomSlider";
 import { ActivityCard } from "@/components/ActivityCard";
 import { SocialFeatures } from "@/components/SocialFeatures";
 import { ExpertContent } from "@/components/ExpertContent";
@@ -24,6 +28,7 @@ export default function Dashboard() {
   const [showChildForm, setShowChildForm] = useState(false);
   const [completedMilestones, setCompletedMilestones] = useState<string[]>([]);
   const [completedMedicalEvents, setCompletedMedicalEvents] = useState<string[]>([]);
+  const [showMedicalSlider, setShowMedicalSlider] = useState(false);
   const { user, updateUser } = useAuth();
   
   const child = user?.child || {};
@@ -135,6 +140,10 @@ export default function Dashboard() {
     toast.success("Activity started! Timer and guidance activated.");
   };
 
+  const handleStartTeaching = (id: string) => {
+    toast.success("Teaching moment started! Step-by-step guidance available.");
+  };
+
   const handleMedicalComplete = (id: string) => {
     setCompletedMedicalEvents(prev => [...prev, id]);
     toast.success("Medical appointment marked complete!");
@@ -214,14 +223,42 @@ export default function Dashboard() {
         onViewDetails={handleActivityDetails}
       />
 
-      {/* Medical Reminders */}
-      <MedicalReminders
+      {/* Smart Activities based on milestones */}
+      <SmartActivities
         ageInMonths={childAgeInMonths}
-        completedEvents={completedMedicalEvents}
-        onMarkComplete={handleMedicalComplete}
-        onSchedule={handleScheduleMedical}
-        onAddCustom={() => toast.info("Custom reminder feature coming soon!")}
+        completedMilestones={completedMilestones}
+        onStartActivity={handleStartActivity}
       />
+
+      {/* Teaching Moments */}
+      <TeachingMoments
+        ageInMonths={childAgeInMonths}
+        onStartTeaching={handleStartTeaching}
+      />
+
+      {/* Age-appropriate Facts */}
+      <AgeAppropriateFacts
+        ageInMonths={childAgeInMonths}
+        childStage={child.stage || 'newborn'}
+      />
+
+      {/* Compact Medical Summary */}
+      <Card className="p-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-medium text-sm mb-1">Medical Schedule</h3>
+            <p className="text-xs text-muted-foreground">Next: 2-month checkup</p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setShowMedicalSlider(true)}
+          >
+            <Calendar className="h-3 w-3 mr-1" />
+            View
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 
@@ -313,6 +350,16 @@ export default function Dashboard() {
           onCancel={() => setShowChildForm(false)}
         />
       )}
+
+      {/* Medical Bottom Slider */}
+      <MedicalSlider
+        isOpen={showMedicalSlider}
+        onClose={() => setShowMedicalSlider(false)}
+        ageInMonths={childAgeInMonths}
+        completedEvents={completedMedicalEvents}
+        onMarkComplete={handleMedicalComplete}
+        onSchedule={handleScheduleMedical}
+      />
     </div>
   );
 }

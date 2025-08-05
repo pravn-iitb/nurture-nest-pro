@@ -34,12 +34,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check for existing session
-    const savedUser = localStorage.getItem('nurture_user');
-    if (savedUser) {
-      const userData = JSON.parse(savedUser);
-      setUser(userData);
-      setIsAuthenticated(true);
+    // Check for existing session only if not in development
+    // In development, always start fresh for testing
+    const isDevelopment = import.meta.env.DEV;
+    
+    if (!isDevelopment) {
+      const savedUser = localStorage.getItem('nurture_user');
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+        setIsAuthenticated(true);
+      }
     }
   }, []);
 

@@ -18,6 +18,7 @@ export function OnboardingFlow() {
 
   const handleComplete = () => {
     console.log('handleComplete called', { parentType, childStage, childName });
+    
     // Calculate initial birth date based on stage
     const birthDate = childStage === 'expecting' 
       ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Due in 30 days
@@ -27,17 +28,23 @@ export function OnboardingFlow() {
       ? new Date(Date.now() - 180 * 24 * 60 * 60 * 1000) // 6 months old
       : new Date(Date.now() - 730 * 24 * 60 * 60 * 1000); // 2 years old
 
+    const childData = {
+      name: childName || 'Little One',
+      stage: childStage,
+      parentType,
+      birthDate: birthDate.toISOString(),
+      weight: childStage === 'newborn' ? 3.2 : childStage === 'infant' ? 7.5 : 12.5,
+      height: childStage === 'newborn' ? 50 : childStage === 'infant' ? 68 : 85
+    };
+
+    console.log('Updating user with child data:', childData);
+    
     updateUser({
-      child: {
-        name: childName || 'Little One',
-        stage: childStage,
-        parentType,
-        birthDate: birthDate.toISOString(),
-        weight: childStage === 'newborn' ? 3.2 : childStage === 'infant' ? 7.5 : 12.5,
-        height: childStage === 'newborn' ? 50 : childStage === 'infant' ? 68 : 85
-      }
+      child: childData,
+      onboardingCompleted: true
     });
-    completeOnboarding();
+    
+    console.log('Onboarding should be complete now');
   };
 
   const handleSkip = () => {
